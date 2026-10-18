@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TradeLab — Trading Strategy Simulator</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <header class="topbar">
+    <div class="brand">Trade<span>Lab</span></div>
+
+    <nav>
+      <button class="nav-btn active" data-section="dashboard">Dashboard</button>
+      <button class="nav-btn" data-section="strategy">Strategy</button>
+      <button class="nav-btn" data-section="portfolio">Portfolio</button>
+      <button class="nav-btn" data-section="patterns">Patterns</button>
+      <button class="nav-btn" data-section="analytics">Analytics</button>
+    </nav>
+
+    <div class="auth-box">
+      <span id="userLabel">Guest</span>
+      <button id="loginBtn" class="small-btn">Login</button>
+      <button id="logoutBtn" class="small-btn hidden">Logout</button>
+    </div>
+  </header>
+
+
+  <main>
+
+    <!-- DASHBOARD -->
+    <section id="dashboard" class="section active">
+
+      <div class="hero">
+        <div>
+          <p class="eyebrow">SIMULATED MARKET • NO REAL MONEY</p>
+          <h1>Trading Strategy Simulator</h1>
+          <p>
+            Experiment with indicators, strategies, multi-asset charts and
+            portfolio decisions using randomly generated market data.
+          </p>
+        </div>
+
+        <button id="generateBtn" class="primary-btn">
+          ↻ Generate New Market
+        </button>
+      </div>
+
+
+      <div class="grid cards">
+
+        <div class="metric-card">
+          <span>Portfolio Value</span>
+          <strong id="portfolioValue">$100,000</strong>
+          <small id="portfolioPnl">+$0.00</small>
+        </div>
+
+        <div class="metric-card">
+          <span>Cash</span>
+          <strong id="cashValue">$100,000</strong>
+          <small>Available cash</small>
+        </div>
+
+        <div class="metric-card">
+          <span>Market Price</span>
+          <strong id="mainPrice">$100.00</strong>
+          <small id="mainAsset">TECH</small>
+        </div>
+
+        <div class="metric-card">
+          <span>RSI (14)</span>
+          <strong id="mainRsi">—</strong>
+          <small>Momentum</small>
+        </div>
+
+      </div>
+
+
+      <div class="panel">
+
+        <div class="panel-head">
+
+          <div>
+            <h2>Multi-Asset Market Chart</h2>
+            <p>Compare simulated stocks, bonds and crypto.</p>
+          </div>
+
+          <div class="controls">
+
+            <label>
+              Chart
+              <select id="chartType">
+                <option value="line">Line</option>
+                <option value="candlestick">Candlestick</option>
+                <option value="bar">Bar</option>
+              </select>
+            </label>
+
+            <label>
+              Range
+              <select id="rangeSelect">
+                <option value="50">50</option>
+                <option value="100" selected>100</option>
+                <option value="150">150</option>
+              </select>
+            </label>
+
+          </div>
+
+        </div>
+
+        <div class="asset-toggles" id="assetToggles"></div>
+
+        <canvas id="marketCanvas" height="420"></canvas>
+
+      </div>
+
+    </section>
+
+
+
+    <!-- STRATEGY -->
+    <section id="strategy" class="section">
+
+      <div class="section-title">
+        <p class="eyebrow">TASK 1</p>
+        <h1>Indicators & Strategy Builder</h1>
+      </div>
+
+
+      <div class="two-col">
+
+        <div class="panel">
+
+          <h2>Indicators</h2>
+
+          <div class="form-grid">
+
+            <label>
+              Moving Average
+              <input id="maPeriod" type="number" min="2" max="50" value="20">
+            </label>
+
+            <label>
+              RSI Period
+              <input id="rsiPeriod" type="number" min="2" max="30" value="14">
+            </label>
+
+            <label>
+              Bollinger Period
+              <input id="bbPeriod" type="number" min="2" max="50" value="20">
+            </label>
+
+            <label>
+              BB Std. Dev.
+              <input id="bbStd" type="number" min="0.5" max="4" step="0.5" value="2">
+            </label>
+
+          </div>
+
+          <button id="applyIndicators" class="primary-btn">
+            Apply Indicators
+          </button>
+
+        </div>
+
+
+        <div class="panel">
+
+          <h2>Simple Trading Rule</h2>
+
+          <label>
+            Strategy
+            <select id="strategySelect">
+              <option value="ma">
+                Buy when price crosses above Moving Average
+              </option>
+
+              <option value="rsi">
+                Buy when RSI is below 30, sell above 70
+              </option>
+
+              <option value="bb">
+                Buy below Lower Bollinger Band, sell above Upper Band
+              </option>
+            </select>
+          </label>
+
+          <button id="runStrategy" class="primary-btn">
+            Run Simulation
+          </button>
+
+          <div class="strategy-result" id="strategyResult">
+            Choose a rule and run the simulation.
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <div class="panel">
+
+        <h2>Strategy Feedback</h2>
+
+        <div class="stats-row" id="strategyStats"></div>
+
+      </div>
+
+    </section>
+
+
+
+    <!-- PORTFOLIO -->
+    <section id="portfolio" class="section">
+
+      <div class="section-title">
+        <p class="eyebrow">TASK 5</p>
+        <h1>Paper Trading Portfolio</h1>
+      </div>
+
+
+      <div class="two-col">
+
+        <div class="panel">
+
+          <h2>Execute Simulated Trade</h2>
+
+          <div class="form-grid">
+
+            <label>
+              Asset
+              <select id="tradeAsset"></select>
+            </label>
+
+            <label>
+              Quantity
+              <input id="tradeQty" type="number" min="1" value="10">
+            </label>
+
+          </div>
+
+
+          <div class="trade-buttons">
+            <button id="buyBtn" class="buy-btn">BUY</button>
+            <button id="sellBtn" class="sell-btn">SELL</button>
+          </div>
+
+          <p class="hint">
+            Transaction fee: 0.10%. Trades are simulated only.
+          </p>
+
+        </div>
+
+
+        <div class="panel">
+
+          <h2>Portfolio Summary</h2>
+
+          <div id="portfolioSummary" class="stats-row"></div>
+
+        </div>
+
+      </div>
+
+
+      <div class="panel">
+
+        <h2>Holdings</h2>
+
+        <div class="table-wrap">
+
+          <table>
+
+            <thead>
+              <tr>
+                <th>Asset</th>
+                <th>Qty</th>
+                <th>Avg Cost</th>
+                <th>Price</th>
+                <th>Market Value</th>
+                <th>Unrealized P/L</th>
+              </tr>
+            </thead>
+
+            <tbody id="holdingsBody"></tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+
+      <div class="panel">
+
+        <h2>Trade History</h2>
+
+        <div class="table-wrap">
+
+          <table>
+
+            <thead>
+              <tr>
+                <th>Time</th>
+                <th>Action</th>
+                <th>Asset</th>
+                <th>Qty</th>
+                <th>Price</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+
+            <tbody id="tradeHistoryBody"></tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+
+    <!-- PATTERNS -->
+    <section id="patterns" class="section">
+
+      <div class="section-title">
+        <p class="eyebrow">TASK 4</p>
+        <h1>Candlestick Pattern Recognition</h1>
+      </div>
+
+
+      <div class="panel">
+
+        <div class="controls">
+
+          <label>
+            Pattern Filter
+
+            <select id="patternFilter">
+
+              <option value="all">All Patterns</option>
+              <option value="Hammer">Hammer</option>
+              <option value="Doji">Doji</option>
+              <option value="Bullish Engulfing">Bullish Engulfing</option>
+              <option value="Bearish Engulfing">Bearish Engulfing</option>
+
+            </select>
+          </label>
+
+
+          <button id="scanPatterns" class="primary-btn">
+            Scan Latest Data
+          </button>
+
+        </div>
+
+
+        <div id="patternList" class="pattern-grid"></div>
+
+      </div>
+
+    </section>
+
+
+
+    <!-- ANALYTICS / TASK 6 -->
+    <section id="analytics" class="section">
+
+      <div class="section-title">
+        <p class="eyebrow">TASK 6</p>
+        <h1>Advanced Data Analytics</h1>
+      </div>
+
+
+      <!-- ANALYTICS CARDS -->
+      <div class="grid cards">
+
+        <div class="metric-card" id="maCard">
+          <span>Moving Average</span>
+          <strong id="analyticsMa">—</strong>
+          <small>Trend</small>
+        </div>
+
+        <div class="metric-card" id="volCard">
+          <span>Volatility</span>
+          <strong id="analyticsVol">—</strong>
+          <small>Risk</small>
+        </div>
+
+        <div class="metric-card" id="rsiCard">
+          <span>RSI</span>
+          <strong id="analyticsRsi">—</strong>
+          <small>Momentum</small>
+        </div>
+
+        <div class="metric-card" id="returnCard">
+          <span>Market Return</span>
+          <strong id="analyticsReturn">—</strong>
+          <small>Performance</small>
+        </div>
+
+      </div>
+
+
+      <!-- METRIC CONTROLS -->
+      <div class="panel">
+
+        <div class="panel-head">
+
+          <div>
+            <h2>Metric Controls</h2>
+
+            <p>
+              Customize the asset, time period, and indicators for your analysis.
+            </p>
+          </div>
+
+
+          <div class="controls">
+
+            <label>
+              Asset
+              <select id="analyticsAsset"></select>
+            </label>
+
+
+            <label>
+              Period
+              <input
+                id="analyticsPeriod"
+                type="number"
+                min="5"
+                max="100"
+                value="20"
+              >
+            </label>
+
+
+            <div class="indicator-toggles">
+
+              <label>
+                <input type="checkbox" id="toggleMA" checked>
+                Moving Average
+              </label>
+
+              <label>
+                <input type="checkbox" id="toggleVolatility" checked>
+                Volatility
+              </label>
+
+              <label>
+                <input type="checkbox" id="toggleRSI" checked>
+                RSI
+              </label>
+
+              <label>
+                <input type="checkbox" id="toggleReturn" checked>
+                Market Return
+              </label>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <div id="analyticsExplanation" class="explanation"></div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+
+
+  <!-- LOGIN -->
+  <dialog id="authDialog">
+
+    <form class="auth-form" id="authForm">
+
+  <button type="button" class="close" id="closeAuth">
+    ×
+  </button>
+
+  <h2 id="authTitle">Create Account</h2>
+
+  <p id="authDescription">
+    Create your TradeLab account to save your portfolio,
+    preferences and strategies.
+  </p>
+
+  <!-- Username -->
+  <input
+    id="authUsername"
+    type="text"
+    placeholder="Username"
+    required
+  >
+
+  <!-- Email -->
+  <input
+    id="authEmail"
+    type="email"
+    placeholder="Email"
+    required
+  >
+
+  <!-- Phone Number -->
+  <input
+    id="authPhone"
+    type="tel"
+    placeholder="Phone Number (+91XXXXXXXXXX)"
+    required
+  >
+
+  <!-- Password -->
+  <input
+    id="authPassword"
+    type="password"
+    placeholder="Password (6+ characters)"
+    minlength="6"
+    required
+  >
+
+  <!-- Firebase CAPTCHA -->
+  <div id="recaptcha-container"></div>
+
+  <!-- Send OTP -->
+  <button type="button" class="primary-btn" id="sendOtpBtn">
+    Send OTP
+  </button>
+
+  <!-- OTP -->
+  <div id="otpSection" style="display:none;">
+
+    <input
+      id="authOtp"
+      type="text"
+      inputmode="numeric"
+      maxlength="6"
+      placeholder="Enter 6-digit OTP"
+    >
+
+    <button type="button" class="primary-btn" id="verifyOtpBtn">
+      Verify OTP
+    </button>
+
+  </div>
+
+  <button type="button" id="switchAuth" class="link-btn">
+    Already have an account? Login
+  </button>
+
+  <div id="authMessage" class="auth-message"></div>
+
+</form>
+
+  </dialog>
+
+
+
+  <footer>
+    TradeLab • Educational paper-trading simulator • No real financial transactions
+  </footer>
+
+
+  <script type="module" src="app.js"></script>
+
+</body>
+</html>
